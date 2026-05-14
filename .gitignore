@@ -1,0 +1,14 @@
+node_modules/
+.npm/
+.cache/
+*.log
+.env
+.DS_Store
+pubspec.lock
+package-lock.json
+build/
+.dart_tool/
+.idea/
+.vscode/
+*.jks
+*.keystore
