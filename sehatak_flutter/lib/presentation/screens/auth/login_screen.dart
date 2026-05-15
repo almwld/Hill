@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   Future<void> _handleLogin() async {
     setState(() => _isLoading = true);
     try {
-      final result = await ApiService.login(
+      final result = await ApiService.login(_phoneCtrl.text.trim(), _otpCtrl.text.trim()
         email: _loginEmailController.text.trim(),
         password: _loginPasswordController.text.trim(),
       );
@@ -67,12 +67,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     }
     setState(() => _isLoading = true);
     try {
-      final result = await ApiService.register(
-        fullName: _registerNameController.text.trim(),
-        email: _registerEmailController.text.trim(),
-        phone: _registerPhoneController.text.trim(),
-        password: _registerPasswordController.text.trim(),
-      );
       if (result['token'] != null) {
         if (!mounted) return;
         Navigator.pushAndRemoveUntil(
