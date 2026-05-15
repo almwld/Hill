@@ -8,17 +8,10 @@ import 'package:sehatak/presentation/screens/doctor/doctor_details_screen.dart';
 import 'package:sehatak/presentation/screens/more/more_screen.dart';
 import 'package:sehatak/presentation/screens/pharmacy/pharmacy_screen.dart';
 import 'package:sehatak/presentation/screens/emergencies/emergency_numbers.dart';
-import 'package:sehatak/presentation/screens/nearby/nearby_screen.dart';
 import 'package:sehatak/presentation/screens/patient/patient_appointments.dart';
 import 'package:sehatak/presentation/screens/patient/patient_dashboard.dart';
 import 'package:sehatak/presentation/screens/chat/chat_screen.dart';
 import 'package:sehatak/presentation/screens/smart_clinic/smart_clinic_screen.dart';
-import 'package:sehatak/presentation/screens/cart/cart_screen.dart';
-import 'package:sehatak/presentation/screens/lab/labs_list_screen.dart';
-import 'package:sehatak/presentation/screens/payment/payment_methods_screen.dart';
-import 'package:sehatak/presentation/screens/subscriptions/subscriptions_screen.dart';
-import 'package:sehatak/presentation/screens/notification/notification_screen.dart';
-import 'package:sehatak/presentation/screens/verification/provider_verification_screen.dart';
 import 'package:sehatak/presentation/screens/auth/login_screen.dart';
 import 'package:sehatak/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:sehatak/presentation/widgets/services_carousel.dart';
@@ -131,16 +124,16 @@ class _HomeTab extends StatelessWidget {
       appBar: AppBar(
         leading: Row(mainAxisSize: MainAxisSize.min, children: [
           const SizedBox(width: 4),
-          _appBarBtn(Icons.account_balance_wallet, AppColors.amber, 'المحفظة', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentMethodsScreen()))),
+          _appBarBtn(Icons.account_balance_wallet, AppColors.amber, 'المحفظة', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Text('المحفظة')))),
           _appBarBtn(Icons.smart_toy, AppColors.primary, 'المساعد الذكي', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SmartClinicScreen())), isGradient: true),
-          _appBarBtn(Icons.verified_user, AppColors.success, 'توثيق', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProviderVerificationScreen()))),
+          _appBarBtn(Icons.verified_user, AppColors.success, 'توثيق', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Text('توثيق')))),
         ]),
         title: Text(isLoggedIn ? 'مرحباً، أحمد' : 'منصة صحتك', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
         actions: [
           _appBarBtn(isDark ? Icons.light_mode : Icons.dark_mode, AppColors.primary, 'المظهر', () {}),
-          _appBarBtn(Icons.notifications_outlined, AppColors.primary, 'الإشعارات', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen())), badge: '3'),
-          _appBarBtn(Icons.shopping_cart_outlined, AppColors.orange, 'السلة', () => _requireAuth(context, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen())))),
-          _appBarBtn(Icons.workspace_premium, AppColors.purple, 'الباقات', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SubscriptionsScreen()))),
+          _appBarBtn(Icons.notifications_outlined, AppColors.primary, 'الإشعارات', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Text('إشعارات'))), badge: '3'),
+          _appBarBtn(Icons.shopping_cart_outlined, AppColors.orange, 'السلة', () => _requireAuth(context, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Text('سلة'))))),
+          _appBarBtn(Icons.workspace_premium, AppColors.purple, 'الباقات', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Text('باقات')))),
           if (!isLoggedIn)
             TextButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(create: (_) => AuthBloc(), child: const LoginScreen()))), child: const Text('تسجيل', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))),
         ],
@@ -170,8 +163,8 @@ class _HomeTab extends StatelessWidget {
           Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
             QuickServiceCard(icon: Icons.local_pharmacy, label: 'الصيدلية', color: AppColors.success, onTap: () {}),
             QuickServiceCard(icon: Icons.emergency, label: 'الطوارئ', color: AppColors.error, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EmergencyNumbers()))),
-            QuickServiceCard(icon: Icons.near_me, label: 'بالقرب منك', color: AppColors.teal, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NearbyScreen()))),
-            QuickServiceCard(icon: Icons.shopping_cart, label: 'السلة', color: AppColors.orange, onTap: () => _requireAuth(context, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen())))),
+            QuickServiceCard(icon: Icons.near_me, label: 'بالقرب منك', color: AppColors.teal, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Text('بالقرب')))),
+            QuickServiceCard(icon: Icons.shopping_cart, label: 'السلة', color: AppColors.orange, onTap: () => _requireAuth(context, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Text('سلة'))))),
             QuickServiceCard(icon: Icons.science, label: 'التحاليل', color: AppColors.purple, onTap: () => _requireAuth(context, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LabsListScreen())))),
           ]),
           const SizedBox(height: 22),
@@ -179,11 +172,11 @@ class _HomeTab extends StatelessWidget {
           // أفضل الأطباء
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('أفضل الأطباء', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)), TextButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DoctorsListScreen())), child: const Text('عرض الكل ›'))]),
           const SizedBox(height: 8),
-          DoctorCard(name: 'د. علي المولد', specialty: 'استشاري باطنية وأطفال', experience: 'خبرة 20+ سنة', rating: 4.9, reviews: 328, fee: '500', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DoctorDetailsScreen(doctorId: '1')))),
+          DoctorCard(name: 'د. علي المولد', specialty: 'استشاري باطنية وأطفال', experience: 'خبرة 20+ سنة', rating: 4.9, reviews: 328, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DoctorDetailsScreen(doctorId: '1')))),
           const SizedBox(height: 8),
-          DoctorCard(name: 'د. حسن رضا', specialty: 'طبيب عام', experience: 'خبرة 8+ سنوات', rating: 4.8, reviews: 235, fee: '300', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DoctorDetailsScreen(doctorId: '2')))),
+          DoctorCard(name: 'د. حسن رضا', specialty: 'طبيب عام', experience: 'خبرة 8+ سنوات', rating: 4.8, reviews: 235, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DoctorDetailsScreen(doctorId: '2')))),
           const SizedBox(height: 8),
-          DoctorCard(name: 'د. عائشة ملك', specialty: 'طبيبة جلدية', experience: 'خبرة 6+ سنوات', rating: 4.9, reviews: 189, fee: '800', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DoctorDetailsScreen(doctorId: '9')))),
+          DoctorCard(name: 'د. عائشة ملك', specialty: 'طبيبة جلدية', experience: 'خبرة 6+ سنوات', rating: 4.9, reviews: 189, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DoctorDetailsScreen(doctorId: '9')))),
           const SizedBox(height: 50),
         ]),
       ),
