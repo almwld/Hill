@@ -1,82 +1,100 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:dio/dio.dart';
+import '../../../core/services/api_service.dart';
+
 abstract class AuthState extends Equatable {
   const AuthState();
   @override
   List<Object?> get props => [];
 }
+
 class AuthInitial extends AuthState {}
 class AuthLoading extends AuthState {}
 class AuthAuthenticated extends AuthState {
-  final String token;
   final String phone;
-  const AuthAuthenticated({required this.token, required this.phone});
-  @override
-  List<Object?> get props => [token, phone];
+  final String? name;
+  const AuthAuthenticated({required this.phone, this.name});
 }
 class AuthUnauthenticated extends AuthState {}
 class OTPSent extends AuthState {
   final String phone;
-  final String? devOTP;
-  const OTPSent({required this.phone, this.devOTP});
-  @override
-  List<Object?> get props => [phone, devOTP];
+  final String? devOtp;
+  const OTPSent({required this.phone, this.devOtp});
 }
 class AuthError extends AuthState {
   final String message;
   const AuthError(this.message);
-  @override
-  List<Object?> get props => [message];
 }
+
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
+}
+
+class CheckAuth extends AuthEvent {
   @override
   List<Object?> get props => [];
 }
-class SendOTPRequested extends AuthEvent {
+class SendOTP extends AuthEvent {
   final String phone;
-  const SendOTPRequested(this.phone);
+  const SendOTP(this.phone);
   @override
   List<Object?> get props => [phone];
 }
-class VerifyOTPRequested extends AuthEvent {
+class LoginWithOTP extends AuthEvent {
   final String phone;
   final String otp;
-  const VerifyOTPRequested({required this.phone, required this.otp});
+  const LoginWithOTP({required this.phone, required this.otp});
   @override
   List<Object?> get props => [phone, otp];
 }
+class Logout extends AuthEvent {
+  @override
+  List<Object?> get props => [];
+}
+
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'https://hi-g26z.onrender.com/api',
-    connectTimeout: const Duration(seconds: 15),
-    receiveTimeout: const Duration(seconds: 15),
-  ));
   AuthBloc() : super(AuthInitial()) {
-    on<SendOTPRequested>(_onSendOTP);
-    on<VerifyOTPRequested>(_onVerifyOTP);
+    on<CheckAuth>(_onCheckAuth);
+    on<SendOTP>(_onSendOTP);
+    on<LoginWithOTP>(_onLoginWithOTP);
+    on<Logout>(_onLogout);
   }
-  Future<void> _onSendOTP(SendOTPRequested event, Emitter<AuthState> emit) async {
+
+  Future<void> _onCheckAuth(CheckAuth event, Emitter<AuthState> emit) async {
+    await ApiService.init();
+    emit(ApiService.isLoggedIn ? AuthAuthenticated(phone: '') : AuthUnauthenticated());
+  }
+
+  Future<void> _onSendOTP(SendOTP event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      final response = await _dio.post('/otp/send', data: {'phone': event.phone});
-      if (response.data['success'] == true) {
-        emit(OTPSent(phone: event.phone, devOTP: response.data['dev_otp']));
+      final result = await ApiService.sendOTP(event.phone);
+      if (result['success'] == true) {
+        emit(OTPSent(phone: event.phone, devOtp: result['dev_otp']?.toString()));
       } else {
-        emit(AuthError(response.data['error'] ?? 'فشل إرسال الرمز'));
+        emit(AuthError(result['error'] ?? 'فشل الإرسال'));
       }
-    } catch (e) { emit(OTPSent(phone: event.phone, devOTP: '123456')); }
+    } catch (e) {
+      emit(AuthError('خطأ في الاتصال بالسيرفر'));
+    }
   }
-  Future<void> _onVerifyOTP(VerifyOTPRequested event, Emitter<AuthState> emit) async {
+
+  Future<void> _onLoginWithOTP(LoginWithOTP event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      final response = await _dio.post('/otp/verify', data: {'phone': event.phone, 'otp': event.otp});
-      if (response.data['success'] == true) {
-        emit(AuthAuthenticated(token: response.data['token'], phone: response.data['phone']));
+      final result = await ApiService.login(event.phone, event.otp);
+      if (result['success'] == true) {
+        emit(AuthAuthenticated(phone: event.phone, name: result['user']?['name']));
       } else {
-        emit(AuthError(response.data['error'] ?? 'رمز التحقق غير صحيح'));
+        emit(AuthError(result['error'] ?? 'رمز غير صحيح'));
       }
-    } catch (e) { emit(AuthAuthenticated(token: 'dev_token', phone: event.phone)); }
+    } catch (e) {
+      emit(AuthError('خطأ في الاتصال بالسيرفر'));
+    }
+  }
+
+  Future<void> _onLogout(Logout event, Emitter<AuthState> emit) async {
+    await ApiService.logout();
+    emit(AuthUnauthenticated());
   }
 }
