@@ -135,13 +135,9 @@ class _HomeTab extends StatelessWidget {
           _appBarBtn(Icons.verified_user, AppColors.success, 'توثيق', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentMethods()))),
         ]),
         title: Text(isLoggedIn ? 'مرحباً، أحمد' : 'منصة صحتك', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-        actions: [
           _appBarBtn(isDark ? Icons.light_mode : Icons.dark_mode, AppColors.primary, 'المظهر', () {
-            final themeBloc = context.read<ThemeBloc>();
-            themeBloc.add(ThemeToggleEvent());
+            setState(() {});
           }),
-          _appBarBtn(Icons.notifications_outlined, AppColors.primary, 'الإشعارات', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())), badge: '3'),
-          _appBarBtn(Icons.shopping_cart_outlined, AppColors.orange, 'السلة', () => _requireAuth(context, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen())))),
           _appBarBtn(Icons.workspace_premium, AppColors.purple, 'الباقات', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentMethods()))),
           if (!isLoggedIn)
             TextButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(create: (_) => AuthBloc(), child: const LoginScreen()))), child: const Text('تسجيل', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))),
