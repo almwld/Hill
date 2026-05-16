@@ -85,6 +85,36 @@ async function updateProfile(req, res) {
   }
 }
 
+// Phone Login with OTP
+async function loginWithPhone(req, res) {
+  try {
+    const { phone } = req.body;
+    
+    // Find or create user by phone
+    let result = await pool.query('SELECT * FROM users WHERE phone = $1', [phone]);
+    let user;
+    
+    if (result.rows.length === 0) {
+      // Auto-register user with phone
+      const insertResult = await pool.query(
+        `INSERT INTO users (full_name, phone, password_hash, user_type)
+         VALUES ($1, $2, $3, 'patient') RETURNING *`,
+        ['مستخدم ' + phone, phone, await bcrypt.hash(Math.random().toString(36), 12)]
+      );
+      user = insertResult.rows[0];
+    } else {
+      user = result.rows[0];
+    }
+
+    const token = jwt.sign({ id: user.id, phone: user.phone, user_type: user.user_type }, JWT_SECRET, { expiresIn: '30d' });
+    delete user.password_hash;
+
+    res.json({ success: true, user, token, phone: user.phone });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+}
+
 // Verify OTP (Mockup)
 async function verifyOtp(req, res) {
   const { code } = req.body;
@@ -94,4 +124,4 @@ async function verifyOtp(req, res) {
   res.status(400).json({ error: 'كود التحقق غير صحيح' });
 }
 
-module.exports = { register, login, getProfile, updateProfile, verifyOtp };
+module.exports = { register, login, loginWithPhone, getProfile, updateProfile, verifyOtp };

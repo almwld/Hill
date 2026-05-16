@@ -49,9 +49,9 @@ class VerifyOTPRequested extends AuthEvent {
 }
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'https://sehatak-backend-v2.onrender.com/api',
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
+    baseUrl: 'https://hi-g26z.onrender.com/api',
+    connectTimeout: const Duration(seconds: 15),
+    receiveTimeout: const Duration(seconds: 15),
   ));
   AuthBloc() : super(AuthInitial()) {
     on<SendOTPRequested>(_onSendOTP);

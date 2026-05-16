@@ -9,6 +9,7 @@ class SetThemeEvent extends ThemeEvent {
   SetThemeEvent(this.isDark);
 }
 class GetThemeEvent extends ThemeEvent {}
+class ThemeToggleEvent extends ThemeEvent {}
 
 // States
 abstract class ThemeState {}
@@ -23,6 +24,7 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
   ThemeBloc() : super(ThemeInitialState()) {
     on<GetThemeEvent>(_onGetTheme);
     on<SetThemeEvent>(_onSetTheme);
+    on<ThemeToggleEvent>(_onToggleTheme);
     add(GetThemeEvent());
   }
 
@@ -36,5 +38,13 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isDark', event.isDark);
     emit(ThemeLoadedState(event.isDark ? ThemeMode.dark : ThemeMode.light));
+  }
+
+  Future<void> _onToggleTheme(ThemeToggleEvent event, Emitter<ThemeState> emit) async {
+    final prefs = await SharedPreferences.getInstance();
+    final currentIsDark = prefs.getBool('isDark') ?? false;
+    final newIsDark = !currentIsDark;
+    await prefs.setBool('isDark', newIsDark);
+    emit(ThemeLoadedState(newIsDark ? ThemeMode.dark : ThemeMode.light));
   }
 }

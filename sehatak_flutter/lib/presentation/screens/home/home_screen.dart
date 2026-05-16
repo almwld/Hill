@@ -8,11 +8,16 @@ import 'package:sehatak/presentation/screens/doctor/doctors_list_screen.dart';
 import 'package:sehatak/presentation/screens/doctor/doctor_details_screen.dart';
 import 'package:sehatak/presentation/screens/more/more_screen.dart';
 import 'package:sehatak/presentation/screens/pharmacy/pharmacy_screen.dart';
+import 'package:sehatak/presentation/screens/pharmacy/cart_screen.dart';
 import 'package:sehatak/presentation/screens/emergencies/emergency_numbers.dart';
 import 'package:sehatak/presentation/screens/patient/patient_appointments.dart';
 import 'package:sehatak/presentation/screens/patient/patient_dashboard.dart';
 import 'package:sehatak/presentation/screens/chat/chat_screen.dart';
 import 'package:sehatak/presentation/screens/smart_clinic/smart_clinic_screen.dart';
+import 'package:sehatak/presentation/screens/payment/wallet_screen.dart';
+import 'package:sehatak/presentation/screens/payment/payment_methods.dart';
+import 'package:sehatak/presentation/screens/shared/notifications_screen.dart';
+import 'package:sehatak/presentation/screens/nearby_clinics/nearby_clinics_screen.dart';
 import 'package:sehatak/presentation/screens/auth/login_screen.dart';
 import 'package:sehatak/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:sehatak/presentation/widgets/services_carousel.dart';
@@ -125,16 +130,19 @@ class _HomeTab extends StatelessWidget {
       appBar: AppBar(
         leading: Row(mainAxisSize: MainAxisSize.min, children: [
           const SizedBox(width: 4),
-          _appBarBtn(Icons.account_balance_wallet, AppColors.amber, 'المحفظة', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Text('المحفظة')))),
+          _appBarBtn(Icons.account_balance_wallet, AppColors.amber, 'المحفظة', () => _requireAuth(context, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletScreen())))),
           _appBarBtn(Icons.smart_toy, AppColors.primary, 'المساعد الذكي', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SmartClinicScreen())), isGradient: true),
-          _appBarBtn(Icons.verified_user, AppColors.success, 'توثيق', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Text('توثيق')))),
+          _appBarBtn(Icons.verified_user, AppColors.success, 'توثيق', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentMethods()))),
         ]),
         title: Text(isLoggedIn ? 'مرحباً، أحمد' : 'منصة صحتك', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
         actions: [
-          _appBarBtn(isDark ? Icons.light_mode : Icons.dark_mode, AppColors.primary, 'المظهر', () {}),
-          _appBarBtn(Icons.notifications_outlined, AppColors.primary, 'الإشعارات', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Text('إشعارات'))), badge: '3'),
-          _appBarBtn(Icons.shopping_cart_outlined, AppColors.orange, 'السلة', () => _requireAuth(context, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Text('سلة'))))),
-          _appBarBtn(Icons.workspace_premium, AppColors.purple, 'الباقات', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Text('باقات')))),
+          _appBarBtn(isDark ? Icons.light_mode : Icons.dark_mode, AppColors.primary, 'المظهر', () {
+            final themeBloc = context.read<ThemeBloc>();
+            themeBloc.add(ThemeToggleEvent());
+          }),
+          _appBarBtn(Icons.notifications_outlined, AppColors.primary, 'الإشعارات', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())), badge: '3'),
+          _appBarBtn(Icons.shopping_cart_outlined, AppColors.orange, 'السلة', () => _requireAuth(context, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen())))),
+          _appBarBtn(Icons.workspace_premium, AppColors.purple, 'الباقات', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentMethods()))),
           if (!isLoggedIn)
             TextButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(create: (_) => AuthBloc(), child: const LoginScreen()))), child: const Text('تسجيل', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))),
         ],
@@ -162,10 +170,10 @@ class _HomeTab extends StatelessWidget {
           Text('خدمات سريعة', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
           Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-            QuickServiceCard(icon: Icons.local_pharmacy, label: 'الصيدلية', color: AppColors.success, onTap: () {}),
+            QuickServiceCard(icon: Icons.local_pharmacy, label: 'الصيدلية', color: AppColors.success, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PharmacyScreen()))),
             QuickServiceCard(icon: Icons.emergency, label: 'الطوارئ', color: AppColors.error, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EmergencyNumbers()))),
-            QuickServiceCard(icon: Icons.near_me, label: 'بالقرب منك', color: AppColors.teal, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Text('بالقرب')))),
-            QuickServiceCard(icon: Icons.shopping_cart, label: 'السلة', color: AppColors.orange, onTap: () => _requireAuth(context, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Text('سلة'))))),
+            QuickServiceCard(icon: Icons.near_me, label: 'بالقرب منك', color: AppColors.teal, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NearbyClinicsScreen()))),
+            QuickServiceCard(icon: Icons.shopping_cart, label: 'السلة', color: AppColors.orange, onTap: () => _requireAuth(context, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen())))),
             QuickServiceCard(icon: Icons.science, label: 'التحاليل', color: AppColors.purple, onTap: () => _requireAuth(context, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LabsListScreen())))),
           ]),
           const SizedBox(height: 22),
