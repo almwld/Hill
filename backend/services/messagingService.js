@@ -2,7 +2,7 @@ const axios = require('axios');
 
 class MessagingService {
   async sendOTP(phone, otp) {
-    // 1. WhatsApp Graph API أولاً
+    // WhatsApp Graph API - رسالة عادية
     if (process.env.META_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID) {
       try {
         await axios.post(
@@ -10,12 +10,8 @@ class MessagingService {
           {
             messaging_product: "whatsapp",
             to: this._formatPhone(phone),
-            type: "template",
-            template: {
-              name: "sehatak_otp",
-              language: { code: "ar" },
-              components: [{ type: "body", parameters: [{ type: "text", text: otp }] }]
-            }
+            type: "text",
+            text: { body: `🔐 رمز التحقق لمنصة صحتك: *${otp}*\nصالح لمدة 10 دقائق` }
           },
           { headers: { Authorization: `Bearer ${process.env.META_ACCESS_TOKEN}` } }
         );
@@ -26,22 +22,18 @@ class MessagingService {
       }
     }
 
-    // 2. Twilio Verify احتياطي
-    if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_VERIFY_SERVICE_SID) {
+    // Twilio احتياطي
+    if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
       try {
         await axios.post(
           `https://verify.twilio.com/v2/Services/${process.env.TWILIO_VERIFY_SERVICE_SID}/Verifications`,
           new URLSearchParams({ To: this._formatPhone(phone), Channel: 'sms' }).toString(),
           { auth: { username: process.env.TWILIO_ACCOUNT_SID, password: process.env.TWILIO_AUTH_TOKEN } }
         );
-        console.log(`✅ Twilio SMS sent to ${phone}`);
         return { success: true, channel: 'twilio_sms' };
-      } catch (e) {
-        console.log('Twilio Error:', e.response?.data || e.message);
-      }
+      } catch (e) {}
     }
 
-    // 3. وضع تطوير
     return { success: true, channel: 'dev', dev_otp: otp };
   }
 
