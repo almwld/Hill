@@ -82,13 +82,18 @@ class _HomeTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final logged = ApiService.isLoggedIn;
     return Scaffold(
+      // ========== APPBAR أبيض ==========
       appBar: AppBar(
-        title: Text(logged ? 'مرحباً، أحمد' : 'منصة صحتك', style: const TextStyle(fontSize:16, fontWeight:FontWeight.w600)),
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.primary,
+        elevation: 0,
+        title: Text(logged ? 'مرحباً، أحمد' : 'منصة صحتك', style: const TextStyle(color: AppColors.primary, fontSize:16, fontWeight:FontWeight.w600)),
         actions: [
-          IconButton(icon: const Icon(Icons.light_mode), onPressed: (){}),
+          IconButton(icon: const Icon(Icons.light_mode, color: AppColors.primary), onPressed: (){}),
           if (!logged) TextButton(onPressed:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>BlocProvider(create:(_)=>AuthBloc(),child:const LoginScreen()))), child:const Text('تسجيل', style:TextStyle(color:AppColors.primary,fontWeight:FontWeight.bold))),
         ],
       ),
+      // ================================
       body: SingleChildScrollView(padding:const EdgeInsets.all(14), child:Column(crossAxisAlignment:CrossAxisAlignment.start, children:[
         if(!logged) LoginPromptBar(onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>BlocProvider(create:(_)=>AuthBloc(),child:const LoginScreen())))),
         const SizedBox(height:14), const CustomSearchBar(hint:'بحث عن خدمات، أطباء، مقالات...'), const SizedBox(height:16),
