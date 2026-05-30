@@ -14,32 +14,45 @@ class AuthAuthenticated extends AuthState {
   final String phone;
   final String? name;
   const AuthAuthenticated({required this.phone, this.name});
+  @override
+  List<Object?> get props => [phone, name];
 }
 class AuthUnauthenticated extends AuthState {}
 class OTPSent extends AuthState {
   final String phone;
   final String? devOtp;
   const OTPSent({required this.phone, this.devOtp});
+  @override
+  List<Object?> get props => [phone, devOtp];
 }
 class AuthError extends AuthState {
   final String message;
   const AuthError(this.message);
+  @override
+  List<Object?> get props => [message];
 }
 
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
+  @override
+  List<Object?> get props => [];
 }
-class CheckAuth extends AuthEvent { @override List<Object?> get props => []; }
+
+class CheckAuth extends AuthEvent {}
 class SendOTP extends AuthEvent {
   final String phone;
   const SendOTP(this.phone);
+  @override
+  List<Object?> get props => [phone];
 }
 class LoginWithOTP extends AuthEvent {
   final String phone;
   final String otp;
   const LoginWithOTP({required this.phone, required this.otp});
+  @override
+  List<Object?> get props => [phone, otp];
 }
-class Logout extends AuthEvent { @override List<Object?> get props => []; }
+class Logout extends AuthEvent {}
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(AuthInitial()) {
