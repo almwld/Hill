@@ -29,28 +29,17 @@ class AuthError extends AuthState {
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
 }
-
-class CheckAuth extends AuthEvent {
-  @override
-  List<Object?> get props => [];
-}
+class CheckAuth extends AuthEvent { @override List<Object?> get props => []; }
 class SendOTP extends AuthEvent {
   final String phone;
   const SendOTP(this.phone);
-  @override
-  List<Object?> get props => [phone];
 }
 class LoginWithOTP extends AuthEvent {
   final String phone;
   final String otp;
   const LoginWithOTP({required this.phone, required this.otp});
-  @override
-  List<Object?> get props => [phone, otp];
 }
-class Logout extends AuthEvent {
-  @override
-  List<Object?> get props => [];
-}
+class Logout extends AuthEvent { @override List<Object?> get props => []; }
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(AuthInitial()) {
@@ -60,40 +49,40 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<Logout>(_onLogout);
   }
 
-  Future<void> _onCheckAuth(CheckAuth event, Emitter<AuthState> emit) async {
+  Future<void> _onCheckAuth(CheckAuth e, Emitter<AuthState> emit) async {
     await ApiService.init();
     emit(ApiService.isLoggedIn ? AuthAuthenticated(phone: '') : AuthUnauthenticated());
   }
 
-  Future<void> _onSendOTP(SendOTP event, Emitter<AuthState> emit) async {
+  Future<void> _onSendOTP(SendOTP e, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      final result = await ApiService.sendOTP(event.phone);
+      final result = await ApiService.sendOTP(e.phone);
       if (result['success'] == true) {
-        emit(OTPSent(phone: event.phone, devOtp: result['dev_otp']?.toString()));
+        emit(OTPSent(phone: e.phone, devOtp: result['dev_otp']?.toString()));
       } else {
         emit(AuthError(result['error'] ?? 'فشل الإرسال'));
       }
-    } catch (e) {
-      emit(AuthError('خطأ في الاتصال بالسيرفر'));
+    } catch (ex) {
+      emit(AuthError('خطأ في الاتصال'));
     }
   }
 
-  Future<void> _onLoginWithOTP(LoginWithOTP event, Emitter<AuthState> emit) async {
+  Future<void> _onLoginWithOTP(LoginWithOTP e, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      final result = await ApiService.login(event.phone, event.otp);
+      final result = await ApiService.login(e.phone, e.otp);
       if (result['success'] == true) {
-        emit(AuthAuthenticated(phone: event.phone, name: result['user']?['name']));
+        emit(AuthAuthenticated(phone: e.phone));
       } else {
         emit(AuthError(result['error'] ?? 'رمز غير صحيح'));
       }
-    } catch (e) {
-      emit(AuthError('خطأ في الاتصال بالسيرفر'));
+    } catch (ex) {
+      emit(AuthError('خطأ في الاتصال'));
     }
   }
 
-  Future<void> _onLogout(Logout event, Emitter<AuthState> emit) async {
+  Future<void> _onLogout(Logout e, Emitter<AuthState> emit) async {
     await ApiService.logout();
     emit(AuthUnauthenticated());
   }
